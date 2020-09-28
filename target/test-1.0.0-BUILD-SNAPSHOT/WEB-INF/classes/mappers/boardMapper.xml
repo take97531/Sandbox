@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="boardMapper">
+   <!-- 게시판 글 작성 -->
+   <insert id="insert">
+      INSERT INTO AccDetailInfo(    acc_num 
+                           , bank_balance 
+                           , bank_store 
+                           , bank_date  
+                           , bank_deposit
+                           , bank_no
+                           , bank_amount)
+                    VALUES(    #{acc_num} 
+                            , #{bank_balance}
+                            , #{bank_store}
+                            , current_timestamp  
+                            , #{bank_deposit}
+                            , bank_no
+                            , #{bank_amount})
+   </insert>
+   
+   <insert id="insert2">
+      INSERT INTO AccInfo(    user_name
+      						, acc_num
+      						, user_RRN
+      						, acc_code)
+                    VALUES(    #{user_name} 
+                            , #{acc_num}
+                            , #{user_RRN}
+                            , #{acc_code})
+   </insert>
+   
+   
+   
+   <select id="listPageTest" resultType="com.kke.vo.BoardVO" parameterType="map">
+       SELECT  acc_num, bank_balance, bank_amount, bank_store, bank_date, bank_deposit, bank_no
+               FROM AccDetailInfo
+               WHERE 1=1 AND acc_num = #{acc_num}
+                <include refid="mapSearch"></include>
+   </select>
+   
+   <select id="listPage" resultType="com.kke.vo.BoardVO" parameterType="map">
+       SELECT  acc_num, bank_balance, bank_store, bank_date, bank_deposit, bank_no
+       FROM ( 
+              SELECT acc_num, bank_balance, bank_store, bank_date, bank_deposit, bank_no, bank_amount, ROW_NUMBER() OVER w AS RNUM
+               FROM AccDetailInfo
+               WHERE 1=1 AND "acc_num" = #{acc_num}
+                  <include refid="search"></include>
+               WINDOW w AS (ORDER BY bank_no DESC)
+                             )
+                              MP
+      WHERE RNUM BETWEEN #{rowStart} AND #{rowEnd}
+      ORDER BY bank_no DESC
+   </select>
+   
+   <select id="listCount" parameterType="com.kke.vo.SearchCriteria" resultType="int">
+      SELECT COUNT(bank_no)
+         FROM AccDetailInfo
+         WHERE 1=1
+      <include refid="search"></include>   
+         AND bank_no > 0
+   </select>
+   
+   <sql id="search">
+      <if test="searchType != null">
+         <if test="searchType == 't'.toString()">AND acc_num LIKE '%'  #{keyword}  '%'</if>
+         <if test="searchType == 'c'.toString()">AND bank_store LIKE '%' #{keyword} '%'</if>
+         <if test="searchType == 'w'.toString()">AND bank_deposit LIKE '%' #{keyword} '%'</if>
+         <if test="searchType == 'tc'.toString()"></if>
+      </if>
+   </sql>
+   
+   <sql id="mapSearch">
+      <if test="SearchCriteria.searchType != null">
+         <if test="SearchCriteria.searchType == 't'.toString() or SearchCriteria.searchType == 'td'.toString()">AND acc_num LIKE '%'  #{SearchCriteria.keyword}  '%'</if>
+         <if test="SearchCriteria.searchType == 'c'.toString() or SearchCriteria.searchType == 'cd'.toString()">AND bank_store LIKE '%' #{SearchCriteria.keyword} '%'</if>
+         <if test="SearchCriteria.searchType == 'w'.toString() or SearchCriteria.searchType == 'wd'.toString()">AND bank_deposit LIKE '%' #{SearchCriteria.keyword} '%'</if>
+         <if test="SearchCriteria.searchType == 'tc'.toString() or SearchCriteria.searchType == 'tcd'.toString()"></if>
+      </if>
+   </sql>
+   
+   <select id="read" parameterType="int" resultType="com.kke.vo.BoardVO">
+      SELECT   acc_num , bank_balance, bank_store, bank_date, bank_deposit, bank_no, bank_amount
+       FROM AccDetailInfo
+       WHERE bank_no = #{bank_no}
+   </select>
+   
+      <update id="update" parameterType="com.kke.vo.BoardVO">
+      UPDATE AccDetailInfo
+         SET acc_num    =   #{acc_num},
+               bank_balance  =   #{bank_balance}
+       WHERE bank_no = #{bank_no} 
+   </update>
+   
+   <delete id="delete" parameterType="int">
+      DELETE 
+        FROM AccDetailInfo
+       WHERE bank_no = #{bank_no}
+   </delete>
+   
+   <delete id="delete2" parameterType="String">
+      DELETE 
+        FROM AccInfo
+       WHERE acc_num = #{acc_num}
+   </delete>
+   
+    <select id="listAccInfo" parameterType="String" resultType="String">
+       SELECT  acc_num
+        FROM AccInfo
+      	WHERE user_RRN=#{user_RRN}
+   </select>
+   
+   <select id="checkAccNum" parameterType="String" resultType="int">
+       SELECT  count(*)
+        FROM AccInfo
+      	WHERE acc_num = #{acc_num}
+   </select>
+   
+   <select id="checkBalance" parameterType="String" resultType="int">
+       SELECT  bank_balance
+        FROM AccDetailInfo
+      	WHERE acc_num = #{acc_num}
+      	ORDER BY bank_no DESC limit 1 
+   </select>
+   
+      <insert id="insertCreated">
+      INSERT INTO AccDetailInfo(    acc_num 
+                           , bank_balance 
+                           , bank_store 
+                           , bank_date  
+                           , bank_deposit
+                           , bank_no
+                           , bank_amount)
+                    VALUES(    #{acc_num} 
+                            , #{bank_balance}
+                            , #{bank_store}
+                            , current_timestamp  
+                            , #{bank_deposit}
+                            , bank_no
+                            , #{bank_amount})
+   </insert>
+   
+   
+    <select id="listDate" parameterType="com.kke.vo.BoardVO" resultType="com.kke.vo.BoardVO">
+   		<![CDATA[
+   		SELECT acc_num, bank_balance, bank_amount, bank_store, bank_date, bank_deposit, bank_no
+   		FROM AccDetailInfo
+   		WHERE acc_num = #{acc_num}
+   			AND bank_no = #{bank_no}
+   			AND bank_date >= DATE_FORMAT(#{start_date}, '%Y-%m-%d')
+      		AND bank_date <= DATE_FORMAT(#{end_date}, '%Y-%m-%d')
+      	]]>
+   </select>
+   
+   <select id="listAll" resultType="com.kke.vo.BoardVO">
+       SELECT  acc_num, bank_balance, bank_amount, bank_store, bank_date, bank_deposit, bank_no
+               FROM AccDetailInfo
+               WHERE 1=1
+               ORDER BY bank_no DESC
+   </select>
+   
+      <select id="listAll_accInfo" resultType="com.kke.vo.AccInfoVO">
+       SELECT  user_name, acc_num, user_RRN, acc_code
+               FROM AccInfo
+               WHERE 1=1
+   </select>
+   
+   <!-- 
+   <update id="updateAmount">
+   UPDATE AccDetailInfo
+   	SET bank_amount	=	#{}
+   </update>
+   
+   <sql id="updateAmountSql">
+   		<if test="계좌의 입출금이" == "입금이면"> 블라블라 </if>
+   		<if test="계좌의 입출금이" == "출금이면"> 블라블라 </if>
+   </sql>
+    -->
+    
+</mapper>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="memberMapper">
+   <!-- 회원가입 -->
+   
+   <insert id="register">
+       INSERT INTO MemberJoin(   user_id 
+                            , user_pw 
+                            , user_name
+                            , user_phoneNum    
+                            , user_RRN
+                            , user_job)
+                     VALUES(    #{user_id} 
+                             , #{user_pw}
+                             , #{user_name}
+                             , #{user_phoneNum}
+                             , #{user_RRN}
+                             , #{user_job})
+    </insert>
+    
+    <!-- 로그인 -->
+   <select id="login" resultType="com.kke.vo.MemberVO">
+      SELECT user_id, user_pw, user_name, user_phoneNum, user_RRN, user_job
+        FROM MemberJoin
+       WHERE user_id = #{user_id}
+       <!--  AND user_pw = #{user_pw} -->
+   </select>
+   
+   
+   <!-- 회원정보 수정 -->
+   <update id="memberUpdate">
+      UPDATE MemberJoin SET 
+      <!-- user_pw = #{user_pw}, -->
+      user_name = #{user_name}
+      WHERE user_id = #{user_id}
+   </update>
+   
+   <!-- 회원탈퇴 -->
+   <delete id="memberDelete">
+      DELETE FROM MemberJoin
+      WHERE user_id = #{user_id}
+       <!--  AND user_pw = #{user_pw} --> 
+   </delete>
+   
+   <!-- 패스워드 체크 -->
+   <select id="passChk" resultType="int">
+      SELECT COUNT(*) FROM MemberJoin
+      WHERE user_id = #{user_id}
+        AND user_pw = #{user_pw}
+   </select>
+   
+      <!-- 아이디 중복 체크 -->
+   <select id="idChk" resultType="int">
+      SELECT COUNT(IF(user_id='',NULL,user_id)) FROM MemberJoin
+      WHERE user_id = #{user_id}
+   </select>
+   
+   
+   
+</mapper>

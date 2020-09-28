@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xmlns:context="http://www.springframework.org/schema/context"
+   xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+   xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring"
+   xmlns:aop="http://www.springframework.org/schema/aop"
+   xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.1.xsd
+      http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring-1.2.xsd
+      http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+      http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
+      http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd">
+   
+   <!-- Root Context: defines shared resources visible to all other web components -->
+      
+ <!-- MySql 연동1 --> 
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <qualifier value="dataSource" />
+        <property name="driverClassName" value="com.mysql.cj.jdbc.Driver"></property>
+        <property name="url" value="jdbc:mysql://13.209.147.48:3306/test?allowPublicKeyRetrieval=true&amp;useSSL=false&amp;serverTimezone=Asia/Seoul"></property>
+        <property name="username" value="root"></property>
+        <property name="password" value="@Cho950820"></property>
+    </bean>
+    
+    <!-- Mybatis 연동1 -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+         <qualifier value="sqlSessionFactory" />
+         <property name="dataSource" ref="dataSource"></property>
+         <property name="configLocation" value="classpath:/mybatis-config.xml"></property>
+         <property name="mapperLocations" value="classpath:mappers/**/*Mapper.xml"/>
+    </bean>
+    <bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate" destroy-method="clearCache">
+        <constructor-arg name="sqlSessionFactory" ref="sqlSessionFactory"></constructor-arg>
+    </bean>
+
+    
+    <!--  dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd   -->
+   
+   <!-- MySql 연동2 MEMBER-->
+    <bean id="dataSource_Member" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <qualifier value="dataSource_Member" />
+        <property name="driverClassName" value="com.mysql.cj.jdbc.Driver"></property>
+        <property name="url" value="jdbc:mysql://13.209.147.48:3306/MEMBER?allowPublicKeyRetrieval=true&amp;useSSL=false&amp;serverTimezone=Asia/Seoul"></property>
+        <property name="username" value="root"></property>
+        <property name="password" value="@Cho950820"></property>
+    </bean>
+
+    
+    <!-- Mybatis 연동2 -->
+    <bean id="sqlSessionFactory_Member" class="org.mybatis.spring.SqlSessionFactoryBean">
+         <qualifier value="sqlSessionFactory_Member" />
+         <property name="dataSource" ref="dataSource_Member"></property>
+         <property name="configLocation" value="classpath:/mybatis-config.xml"></property>
+         <property name="mapperLocations" value="classpath:mappers/**/*Mapper.xml"/>
+    </bean>
+    <bean id="sqlSession_Member" class="org.mybatis.spring.SqlSessionTemplate" destroy-method="clearCache">
+        <constructor-arg name="sqlSessionFactory" ref="sqlSessionFactory_Member"></constructor-arg>
+    </bean>
+     
+    <!--  dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd   -->
+    
+    
+    <!-- MySql 연동3 -->
+    <bean id="dataSource_BANK_NH" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <qualifier value="dataSource_BANK_NH" />
+        <property name="driverClassName" value="com.mysql.cj.jdbc.Driver"></property>
+        <property name="url" value="jdbc:mysql://13.209.147.48:3306/BANK_NH?allowPublicKeyRetrieval=true&amp;useSSL=false&amp;serverTimezone=Asia/Seoul"></property>
+        <property name="username" value="root"></property>
+        <property name="password" value="@Cho950820"></property>
+    </bean>
+    
+    <!-- Mybatis 연동3 -->
+    <bean id="sqlSessionFactory_BANK_NH" class="org.mybatis.spring.SqlSessionFactoryBean">
+         <qualifier value="sqlSessionFactory_BANK_NH" />
+         <property name="dataSource" ref="dataSource_BANK_NH"></property>
+         <property name="configLocation" value="classpath:/mybatis-config.xml"></property>
+         <property name="mapperLocations" value="classpath:mappers/**/*Mapper.xml"/>
+    </bean>
+    <bean id="sqlSession_BANK_NH" class="org.mybatis.spring.SqlSessionTemplate" destroy-method="clearCache">
+        <constructor-arg name="sqlSessionFactory" ref="sqlSessionFactory_BANK_NH"></constructor-arg>
+    </bean>
+     
+    <!--  dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd   -->
+    
+      <!-- scan -->
+    <context:component-scan base-package="com.kke.service"></context:component-scan>
+    <context:component-scan base-package="com.kke.dao"></context:component-scan>
+    <context:component-scan base-package="com.kke.vo"></context:component-scan>
+    
+
+</beans>

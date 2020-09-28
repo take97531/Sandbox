@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="scrambleMapper">
+
+
+<delete id="clearSDb">
+	DELETE FROM scramble
+</delete>
+
+<insert id="insertScrambleDetailForDate">
+      INSERT INTO scramble(    acc_num 
+      					   , acc_code
+                           , bank_store 
+                           , bank_date  
+                           , bank_deposit
+                           , bank_no
+                           , bank_amount
+                           , bank_balance)
+                    VALUES(    #{acc_num}
+                    		, #{acc_code} 
+                            , #{bank_store}
+                            , #{bank_date}
+                            , #{bank_deposit}
+                            , #{bank_no}
+                            , #{bank_amount}
+                            , #{bank_balance})
+   </insert>
+
+
+
+
+
+
+
+
+
+<select id="matchAccNum" resultType="String" parameterType="String">
+       SELECT  sc_acc_num
+               FROM conn
+               WHERE 1=1 AND acc_num = #{acc_num}
+   </select>
+
+	<select id="matchAccDeatil" resultType="com.kke.vo.BoardVO" parameterType="com.kke.vo.BoardVO">
+       SELECT  acc_num, bank_balance, bank_store, bank_date, bank_deposit, bank_no, bank_amount, acc_code
+               FROM scramble
+               WHERE acc_num = #{acc_num} AND bank_date = #{bank_date}
+               	AND bank_deposit = #{bank_deposit} AND bank_amount=#{bank_amount} AND bank_balance=#{bank_balance} limit 1
+               	<!-- 나중에 balance도 맞춰볼거야! 지금은 문제 생길 수 있으니 패스 -->
+   </select>
+
+
+
+
+
+
+
+
+
+
+
+	<!-- InsertToScramble -->
+	<insert id="insertScramble">
+	<!-- 여기 처음에 들어가는건 DB에 쓰여진 형태인가? #의 형태는 VO같긴한데 -->
+	    INSERT INTO scramble (   	 name 
+		   					       , RRN 
+		   					       , phoneNum)
+		                  VALUES(    #{name} 
+		                 		   , #{RRN}
+		                 		   , #{phoneNum})
+    </insert>
+    <!-- The Spell is not correctly spelled는 오류가 아니라 그냥 spell이 이상하다 인식하는거임 -->
+    
+    <select id="getBalance" parameterType="String" resultType="int">
+       SELECT  bank_balance
+        FROM AccDetailInfo
+      	WHERE acc_num=#{acc_num}
+      	ORDER BY bank_no DESC limit 1
+   </select>
+    
+    <select id="getScrambledAccNum" parameterType="List" resultType="String">
+       SELECT  sc_acc_num
+        FROM conn
+      	WHERE acc_num=#{acc_num}
+   </select>
+    
+    <select id="getScrambledAccNumList" parameterType="List" resultType="String">
+       SELECT  sc_acc_num
+        FROM conn
+      	WHERE acc_num=#{acc_num}
+   </select>
+    
+    <select id="searchAccInfo" parameterType="String" resultType="com.kke.vo.AccInfoVO">
+       SELECT  user_name, user_RRN
+        FROM AccInfo
+      	WHERE acc_num=#{acc_num}
+   </select>
+   
+   <select id="searchPhoneNum" parameterType="String" resultType="String">
+       SELECT  user_phoneNum
+        FROM MemberJoin
+      	WHERE user_RRN=#{user_RRN}
+   </select>
+   
+   <insert id="insertLink">
+	    INSERT INTO conn (   	 	user_name 
+		   					       , acc_num 
+		   					       , user_phoneNum
+		   					       , acc_code)
+		                  VALUES(    #{user_name} 
+		                 		   , #{acc_num}
+		                 		   , #{user_phoneNum}
+		                 		   , #{acc_code})
+    </insert>
+    
+    <update id="insertScAccNum" parameterType="com.kke.vo.LinkVO">
+	    UPDATE conn
+	    	SET	sc_acc_num = #{sc_acc_num}
+	    	WHERE acc_num = #{acc_num}
+    </update>
+    
+    <select id="searchDetailInfo" parameterType="String" resultType="com.kke.vo.BoardVO">
+       SELECT acc_num, bank_balance, bank_store, bank_date, bank_deposit, bank_no, bank_amount
+        FROM AccDetailInfo
+      	WHERE acc_num=#{acc_num}
+   </select>
+   
+   <insert id="insertScrambleDetail">
+      INSERT INTO scramble(    acc_num 
+      					   , acc_code
+                           , bank_store 
+                           , bank_date  
+                           , bank_deposit
+                           , bank_no
+                           , bank_amount
+                           , bank_balance)
+                    VALUES(    #{acc_num}
+                    		, #{acc_code} 
+                            , #{bank_store}
+                            , #{bank_date}
+                            , #{bank_deposit}
+                            , #{bank_no}
+                            , #{bank_amount}
+                            , #{bank_balance})
+   </insert>
+   
+    <insert id="insertScrambleDetailNow">
+      INSERT INTO scramble(    acc_num 
+      					   , acc_code
+                           , bank_store 
+                           , bank_date  
+                           , bank_deposit
+                           , bank_no
+                           , bank_amount
+                           , bank_balance)
+                    VALUES(    #{acc_num}
+                    		, #{acc_code} 
+                            , #{bank_store}
+                            , current_timestamp
+                            , #{bank_deposit}
+                            , #{bank_no}
+                            , #{bank_amount}
+                            , #{bank_balance})
+   </insert>
+   
+   
+   <select id="getLastNo" resultType="int">
+       SELECT bank_no 
+       FROM scramble 
+       ORDER BY bank_no DESC limit 1
+   </select>
+   
+    
+   <select id="getAccounts" resultType="String">
+       SELECT  acc_num
+        FROM AccInfo
+   </select>
+   
+   <select id="nestAccNumChk" parameterType="String" resultType="int">
+       SELECT  COUNT(acc_num)
+        FROM conn
+        WHERE acc_num = #{acc_num}
+   </select>
+   
+   <select id="isScNumChk" parameterType="String" resultType="String">
+       SELECT  sc_acc_num
+        FROM conn
+        WHERE acc_num = #{acc_num}
+   </select>
+   
+   <select id="nestScAccNumChk" parameterType="String" resultType="int">
+       SELECT  COUNT(sc_acc_num)
+        FROM conn
+        WHERE sc_acc_num = #{sc_acc_num}
+   </select>
+   
+    
+    
+</mapper>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="scrambleApiMapper">
+	<!-- 회원가입 api 조건 체크 -->
+   <select id="scApiChk" resultType="int">
+      SELECT COUNT(*) FROM conn
+      WHERE user_phoneNum = #{user_phoneNum}
+        AND user_phoneID is NULL
+   </select>
+   
+   <!-- phoneId 개수 체크 -->
+   <select id="scPhoneChk" resultType="int">
+      SELECT COUNT(*) FROM conn
+      WHERE user_phoneID = #{user_phoneID}
+   </select>
+   
+   <!-- MemberJoin phoneID 추가 -->
+	<update id="scPhoneId">
+		UPDATE conn  
+		SET user_phoneID = #{user_phoneID}
+		WHERE user_phoneNum = #{user_phoneNum}
+	</update>
+	
+	
+	<!-- 계좌번호 뽑아오기 -->
+   <select id="scGetAccNum" resultType="com.kke.vo.ApiVO">
+      SELECT acc_num, user_phoneID, acc_code, sc_acc_num 
+      FROM conn
+       WHERE user_phoneID = #{user_phoneID}
+   </select>
+   
+   <!-- 조건에 맞는 지출 금액 뽑아오기 -->
+   <select id="scGetWithdraw" parameterType="com.kke.vo.ApiVO" resultType="int">
+   		<![CDATA[
+       SELECT bank_amount FROM scramble
+      	WHERE acc_num = #{sc_acc_num}
+      		AND bank_deposit = "출금"
+      		AND bank_date >= DATE_FORMAT(#{start_date}, '%Y-%m-%d')
+      		AND bank_date <= DATE_FORMAT(#{end_date}, '%Y-%m-%d')
+  		]]> 
+   </select>
+	
+	<!-- 조건에 맞는 계좌정보 뽑아오기 -->
+	<select id="scShowApiList" parameterType="com.kke.vo.ApiVO" resultType="com.kke.vo.ApiVO">
+   		<![CDATA[
+   		SELECT  acc_num, bank_date, bank_amount, bank_store, bank_deposit, acc_code
+   		FROM scramble
+   		WHERE acc_num = #{sc_acc_num}
+   			AND bank_deposit = #{bank_deposit}
+   			AND bank_date >= DATE_FORMAT(#{start_date}, '%Y-%m-%d')
+      		AND bank_date <= DATE_FORMAT(#{end_date}, '%Y-%m-%d')
+      	]]>
+   </select>
+   
+   
+   <!-- 지출 시 계좌번호 뽑아오기 -->
+   <select id="getScVO" resultType="com.kke.vo.ApiVO" parameterType="String">
+      SELECT sc_acc_num, user_phoneID
+      FROM conn
+      WHERE acc_num = #{acc_num}
+   </select>
+   
+   <!-- 지출 시 계좌번호 뽑아오기 -->
+   <select id="getRequest" resultType="com.kke.vo.ApiVO" parameterType="com.kke.vo.ApiVO">
+      SELECT acc_num, bank_deposit, bank_amount, bank_store, bank_date, acc_code 
+      FROM scramble
+      WHERE bank_date = (SELECT MAX(bank_date) FROM scramble)
+   </select>
+   
+   <select resultType="com.kke.vo.ApiVO" id="listAll">
+   		SELECT acc_num, bank_balance, bank_amount, bank_store, bank_date, bank_deposit, bank_no, acc_code
+   		FROM scramble
+   		WHERE 1=1 
+   </select>
+   
+</mapper>

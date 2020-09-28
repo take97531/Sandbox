@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="apiMapper">
+	<!-- 회원가입 api 조건 체크 -->
+   <select id="apiChk" resultType="int">
+      SELECT COUNT(*) FROM MemberJoin
+      WHERE user_phoneNum = #{user_phoneNum}
+        AND user_phoneID is NULL
+   </select>
+   
+   <!-- phoneId 개수 체크 -->
+   <select id="phoneChk" resultType="int">
+      SELECT COUNT(*) FROM MemberJoin
+      WHERE user_phoneID = #{user_phoneID}
+   </select>
+   
+   <!-- MemberJoin phoneID 추가 -->
+	<update id="phoneId">
+		UPDATE MemberJoin  
+		SET user_phoneID = #{user_phoneID}
+		WHERE user_phoneNum = #{user_phoneNum}
+	</update>
+	
+   <!-- AccConn phoneID 추가 -->
+	<update id="IdRegister">
+		<selectKey keyProperty="user_RRN" resultType="String" order="BEFORE">
+			SELECT user_RRN
+			FROM MemberJoin 
+			WHERE user_phoneID = #{user_phoneID}
+		</selectKey>
+		
+		UPDATE AccConn
+		SET user_phoneID = #{user_phoneID}
+		WHERE user_RRN = #{user_RRN}
+	</update>
+	
+	<!-- 계좌번호 뽑아오기 -->
+   <select id="getAccNum" resultType="com.kke.vo.ApiVO">
+      SELECT acc_num FROM AccConn
+       WHERE user_phoneID = #{user_phoneID}
+   </select>
+   
+   
+   <select id="getWithdraw" parameterType="com.kke.vo.ApiVO" resultType="int">
+   		<![CDATA[
+       SELECT bank_amount FROM AccDetailInfo
+      	WHERE acc_num = #{acc_num}
+      		AND bank_deposit = "출금"
+      		AND bank_date >= DATE_FORMAT(#{start_date}, '%Y-%m-%d')
+      		AND bank_date <= DATE_FORMAT(#{end_date}, '%Y-%m-%d')
+  		]]> 
+   </select>
+   
+   <select id="showApiList" parameterType="com.kke.vo.ApiVO" resultType="com.kke.vo.ApiVO">
+   		<![CDATA[
+   		SELECT  acc_num, bank_date, bank_amount, bank_store, bank_deposit, bank_date
+   		FROM AccDetailInfo
+   		WHERE acc_num = #{acc_num}
+   			AND bank_deposit = #{bank_deposit}
+   			AND bank_date >= DATE_FORMAT(#{start_date}, '%Y-%m-%d')
+      		AND bank_date <= DATE_FORMAT(#{end_date}, '%Y-%m-%d')
+      	]]>
+   </select>
+   
+</mapper>

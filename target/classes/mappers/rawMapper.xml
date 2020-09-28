@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="rawMapper">
+	<!-- InsertToScramble -->
+	<insert id="insertRaw">
+	<!-- 여기 처음에 들어가는건 DB에 쓰여진 형태인가? #의 형태는 VO같긴한데 -->
+	    INSERT INTO rowDB (   		 name 
+		   					       , RRN 
+		   					       , phoneNum)
+		                  VALUES(    #{name} 
+		                 		   , #{RRN}
+		                 		   , #{phoneNum})
+    </insert>
+    <!-- The Spell is not correctly spelled는 오류가 아니라 그냥 spell이 이상하다 인식하는거임 -->
+</mapper>
